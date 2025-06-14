@@ -1,4 +1,3 @@
-
 import React from "react";
 
 type LifeStatsBarProps = {
@@ -24,32 +23,36 @@ const LifeStatsBar: React.FC<LifeStatsBarProps> = ({ dob, targetAge = 90 }) => {
   const percentageLived = Math.min(100, (weeksLived / totalWeeks) * 100);
 
   return (
-    <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 w-full max-w-3xl bg-white/70 border border-gray-200/60 rounded-xl shadow-lg px-6 py-4 flex flex-col items-center gap-3 backdrop-blur-md select-none mx-4">
-      <div className="text-xs font-semibold tracking-[0.1em] text-gray-600 uppercase">
+    <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 w-[calc(100%-2rem)] max-w-3xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/60 dark:border-gray-700/60 rounded-xl shadow-lg px-4 sm:px-6 py-3 sm:py-4 flex flex-col items-center gap-2 sm:gap-3 backdrop-blur-md select-none">
+      <div className="text-xs font-semibold tracking-[0.1em] text-gray-600 dark:text-gray-300 uppercase">
         Your Life in Weeks
       </div>
-      <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10">
-        <StatNumber
-          label="Weeks Lived"
-          value={weeksLived.toLocaleString()}
-          color="blue"
-          important
-        />
-        <Separator />
-        <StatNumber
-          label="Weeks Remaining"
-          value={weeksLeft.toLocaleString()}
-          subtitle="(approx. to age 90)"
-          color="gray"
-        />
-        <Separator />
-        <StatNumber
-          label="Life Progress"
-          value={percentageLived.toFixed(1) + "%"}
-          subtitle="(approx.)"
-          color="purple"
-          percentage
-        />
+      <div className="w-full grid grid-cols-3 gap-1 sm:gap-2 md:gap-4">
+        <div className="col-span-3 sm:col-span-1">
+          <StatNumber
+            label="Weeks Lived"
+            value={weeksLived.toLocaleString()}
+            color="blue"
+            important
+          />
+        </div>
+        <div className="col-span-3 sm:col-span-1">
+          <StatNumber
+            label="Weeks Left"
+            value={weeksLeft.toLocaleString()}
+            subtitle={window.innerWidth > 640 ? "(to age 90)" : ""}
+            color="gray"
+          />
+        </div>
+        <div className="col-span-3 sm:col-span-1">
+          <StatNumber
+            label="Progress"
+            value={percentageLived.toFixed(1) + "%"}
+            subtitle={window.innerWidth > 640 ? "" : `of ${targetAge} years`}
+            color="purple"
+            percentage
+          />
+        </div>
       </div>
     </div>
   );
@@ -71,21 +74,21 @@ function StatNumber({
   important?: boolean;
 }) {
   const getValueColor = () => {
-    if (color === "blue") return "text-blue-600";
-    if (color === "purple") return "text-purple-600";
-    return "text-gray-800";
+    if (color === "blue") return "text-blue-600 dark:text-blue-400";
+    if (color === "purple") return "text-purple-600 dark:text-purple-400";
+    return "text-gray-800 dark:text-gray-200";
   };
 
   return (
-    <div className="flex flex-col items-center min-w-[100px] text-center">
-      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+    <div className="flex flex-col items-center text-center p-1 sm:p-2 rounded-lg bg-white/50 dark:bg-gray-800/50">
+      <span className="text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5 sm:mb-1">
         {label}
       </span>
-      <span className={`text-3xl lg:text-4xl font-bold leading-none ${getValueColor()}`}>
+      <span className={`text-xl sm:text-2xl md:text-3xl font-bold leading-none ${getValueColor()}`}>
         {value}
       </span>
       {subtitle && (
-        <span className="text-xs font-medium text-gray-400 mt-0.5 leading-tight">
+        <span className="text-[10px] sm:text-xs font-medium text-gray-400 dark:text-gray-500 mt-0.5 leading-tight">
           {subtitle}
         </span>
       )}

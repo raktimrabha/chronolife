@@ -46,8 +46,32 @@ interface EventsByYear {
   [year: number]: Event[];
 }
 
+// Add some sample global events
 const globalEvents: Event[] = [
-  // Add global events here...
+  {
+    id: 'covid-start',
+    title: 'COVID-19 Pandemic Begins',
+    date: new Date('2020-03-11'),
+    type: 'global',
+    description: 'WHO declares COVID-19 a pandemic',
+    color: '#EF4444'
+  },
+  {
+    id: 'bitcoin-20k',
+    title: 'Bitcoin Reaches $20,000',
+    date: new Date('2020-12-16'),
+    type: 'global',
+    description: 'Bitcoin reaches $20,000 for the first time',
+    color: '#F59E0B'
+  },
+  {
+    id: 'chatgpt-launch',
+    title: 'ChatGPT Launched',
+    date: new Date('2022-11-30'),
+    type: 'global',
+    description: 'OpenAI releases ChatGPT to the public',
+    color: '#10B981'
+  }
 ];
 
 const Index = () => {
@@ -64,13 +88,42 @@ const Index = () => {
   const [showPersonalEvents, setShowPersonalEvents] = React.useState(true);
   const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
 
+  // Load personal events from localStorage on component mount
+  React.useEffect(() => {
+    try {
+      const savedEvents = localStorage.getItem('personalEvents');
+      if (savedEvents) {
+        const parsedEvents = JSON.parse(savedEvents).map((event: any) => ({
+          ...event,
+          date: new Date(event.date)
+        }));
+        setPersonalEvents(parsedEvents);
+      }
+    } catch (error) {
+      console.error('Failed to load events from localStorage', error);
+    }
+  }, []);
+
+  // Save personal events to localStorage when they change
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('personalEvents', JSON.stringify(personalEvents));
+    } catch (error) {
+      console.error('Failed to save events to localStorage', error);
+    }
+  }, [personalEvents]);
+
   const allEvents = React.useMemo(() => {
     const events = [
       ...(showGlobalEvents ? globalEvents : []),
       ...(showPersonalEvents ? personalEvents : [])
     ];
-    return events.sort((a, b) => a.date.getTime() - b.date.getTime());
-  }, [showGlobalEvents, showPersonalEvents, personalEvents]);
+    
+    // Filter events to only show those after the user's birth date
+    return events
+      .filter(event => !dob || event.date >= dob)
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+  }, [showGlobalEvents, showPersonalEvents, personalEvents, dob]);
 
   const eventsByYear = React.useMemo<EventsByYear>(() => {
     return allEvents.reduce<EventsByYear>((acc, event) => {
@@ -335,7 +388,7 @@ const Index = () => {
                         type="checkbox"
                         id="show-global"
                         checked={showGlobalEvents}
-                        onChange={() => setShowGlobalEvents(!showGlobalEvents)}
+                        onChange={(e) => setShowGlobalEvents(e.target.checked)}
                         className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                       />
                       <label htmlFor="show-global" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
@@ -347,7 +400,7 @@ const Index = () => {
                         type="checkbox"
                         id="show-personal"
                         checked={showPersonalEvents}
-                        onChange={() => setShowPersonalEvents(!showPersonalEvents)}
+                        onChange={(e) => setShowPersonalEvents(e.target.checked)}
                         className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                       />
                       <label htmlFor="show-personal" className="ml-2 text-sm text-gray-700 dark:text-gray-300">

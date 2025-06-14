@@ -1,4 +1,3 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -28,14 +27,38 @@ const LifeWeeksGrid: React.FC<LifeWeeksGridProps> = ({ dob, targetAge = MAX_YEAR
   const years: number[] = [];
   for (let y = 0; y < targetAge; ++y) years.push(y);
 
+  // Calculate cell size based on viewport width
+  const [cellSize, setCellSize] = React.useState(12);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const updateSize = () => {
+      if (!containerRef.current) return;
+      const containerWidth = containerRef.current.offsetWidth - 40; // Account for padding
+      const maxCellSize = 12; // Max size of each cell
+      const minCellSize = 8;  // Min size of each cell
+      const calculatedSize = Math.max(minCellSize, Math.min(maxCellSize, Math.floor(containerWidth / GRID_COLUMNS)));
+      setCellSize(calculatedSize);
+    };
+
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  // Only show every 5th year label on mobile
+  const yearLabelInterval = window.innerWidth < 640 ? 10 : 5;
+  // Only show every 13th week label on mobile (quarterly)
+  const weekLabelInterval = window.innerWidth < 640 ? 13 : 5;
+
   return (
     <TooltipProvider delayDuration={100}>
-      <div className="flex flex-col items-center">
-        <div className="flex items-start gap-2">
+      <div className="flex flex-col items-center w-full px-2 sm:px-4" ref={containerRef}>
+        <div className="flex items-start gap-1 sm:gap-2 w-full max-w-full overflow-x-auto pb-2">
           {/* Age labels on the left */}
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end sticky left-0 bg-background z-10 pr-1">
             {/* Age heading */}
-            <div className="text-xs font-semibold text-muted-foreground mb-2 h-6 flex items-center justify-center">
+            <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1 h-6 flex items-center justify-center">
               Age
             </div>
             {/* Year labels - aligned with grid rows */}
@@ -43,10 +66,14 @@ const LifeWeeksGrid: React.FC<LifeWeeksGridProps> = ({ dob, targetAge = MAX_YEAR
               {years.map((year) => (
                 <div 
                   key={year} 
-                  className="text-xs text-muted-foreground font-mono flex items-center justify-end pr-2" 
-                  style={{ height: '12px', minWidth: '24px' }}
+                  className="text-[10px] sm:text-xs text-muted-foreground font-mono flex items-center justify-end pr-1" 
+                  style={{ 
+                    height: `${cellSize}px`,
+                    minWidth: '24px',
+                    opacity: year % yearLabelInterval === 0 ? 1 : 0.3
+                  }}
                 >
-                  {year % 5 === 0 ? year : ''}
+                  {year % yearLabelInterval === 0 ? year : ''}
                 </div>
               ))}
             </div>
@@ -55,19 +82,23 @@ const LifeWeeksGrid: React.FC<LifeWeeksGridProps> = ({ dob, targetAge = MAX_YEAR
           {/* Main grid container */}
           <div className="relative">
             {/* Week of the Year heading and week number labels */}
-            <div className="flex flex-col mb-2">
-              <div className="text-xs font-semibold text-muted-foreground mb-1 text-center h-6 flex items-center justify-center">
-                Week of the Year
+            <div className="flex flex-col mb-1">
+              <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1 text-center h-6 flex items-center justify-center">
+                Week of Year
               </div>
               {/* Week number labels - aligned with grid columns */}
               <div className="flex" style={{ gap: '1px' }}>
                 {Array.from({ length: 52 }).map((_, weekIndex) => (
                   <div 
                     key={weekIndex} 
-                    className="text-xs text-muted-foreground font-mono flex items-center justify-center" 
-                    style={{ width: '12px', height: '12px' }}
+                    className="text-[10px] sm:text-xs text-muted-foreground font-mono flex items-center justify-center" 
+                    style={{ 
+                      width: `${cellSize}px`, 
+                      height: '12px',
+                      opacity: weekIndex % weekLabelInterval === 0 ? 1 : 0.3
+                    }}
                   >
-                    {weekIndex % 5 === 0 ? weekIndex : ''}
+                    {weekIndex % weekLabelInterval === 0 ? weekIndex : ''}
                   </div>
                 ))}
               </div>
@@ -75,13 +106,14 @@ const LifeWeeksGrid: React.FC<LifeWeeksGridProps> = ({ dob, targetAge = MAX_YEAR
             
             {/* Grid */}
             <div
-              className="rounded-lg border bg-card p-4 shadow-lg"
+              className="rounded-lg border bg-card shadow-lg p-2 sm:p-4"
               style={{ 
                 display: 'grid',
-                gridTemplateColumns: 'repeat(52, 12px)',
+                gridTemplateColumns: `repeat(52, ${cellSize}px)`,
                 gap: '1px',
-                maxWidth: '100%', 
-                overflowX: 'auto' 
+                width: 'max-content',
+                maxWidth: '100%',
+                overflow: 'visible'
               }}
             >
               {Array.from({ length: totalWeeks }).map((_, i) => {
@@ -90,15 +122,15 @@ const LifeWeeksGrid: React.FC<LifeWeeksGridProps> = ({ dob, targetAge = MAX_YEAR
                 const weekDate = new Date(dob);
                 weekDate.setDate(weekDate.getDate() + i * 7);
                 
-                let colorClass = "bg-gray-200"; // Future weeks - light gray
+                let colorClass = "bg-gray-200 dark:bg-gray-700"; // Future weeks - light gray
                 let outlineClass = "";
                 
                 if (i < weekNumNow) {
-                  colorClass = "bg-blue-500"; // Lived weeks - blue
+                  colorClass = "bg-blue-500 dark:bg-blue-600"; // Lived weeks - blue
                 }
                 if (i === weekNumNow) {
-                  colorClass = "bg-green-500"; // Current week - green
-                  outlineClass = "ring-2 ring-green-300";
+                  colorClass = "bg-green-500 dark:bg-green-600"; // Current week - green
+                  outlineClass = "ring-1 ring-green-300 dark:ring-green-400";
                 }
                 
                 return (
@@ -106,22 +138,33 @@ const LifeWeeksGrid: React.FC<LifeWeeksGridProps> = ({ dob, targetAge = MAX_YEAR
                     <TooltipTrigger asChild>
                       <div
                         className={cn(
-                          "w-3 h-3 rounded-[1px] cursor-pointer transition-all duration-100",
+                          "cursor-pointer transition-all duration-100 hover:scale-110 hover:z-10",
                           colorClass,
                           outlineClass,
-                          "hover:scale-110"
+                          {
+                            'rounded-tl-sm': week === 0,
+                            'rounded-tr-sm': week === 51,
+                            'rounded-bl-sm': i >= totalWeeks - 52 && week === 0,
+                            'rounded-br-sm': i >= totalWeeks - 52 && week === 51,
+                          }
                         )}
+                        style={{
+                          width: `${cellSize}px`,
+                          height: `${cellSize}px`,
+                          minWidth: `${cellSize}px`,
+                          minHeight: `${cellSize}px`,
+                        }}
                       />
                     </TooltipTrigger>
-                    <TooltipContent className="px-2 py-1 text-xs rounded shadow">
+                    <TooltipContent className="px-2 py-1 text-xs rounded shadow z-50">
                       <div>
                         <span className="font-mono font-semibold">Age {year}, Week {week + 1}</span>
                       </div>
-                      <div>
+                      <div className="text-muted-foreground">
                         {weekDate.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                       </div>
-                      {i < weekNumNow && <div className="text-[10px] text-muted-foreground">Lived</div>}
-                      {i === weekNumNow && <div className="text-[10px] text-green-600 font-bold">This week</div>}
+                      {i < weekNumNow && <div className="text-[10px] text-blue-600 dark:text-blue-400">Lived</div>}
+                      {i === weekNumNow && <div className="text-[10px] font-bold text-green-600 dark:text-green-400">This week</div>}
                       {i > weekNumNow && <div className="text-[10px] text-muted-foreground">Future</div>}
                     </TooltipContent>
                   </Tooltip>
@@ -132,18 +175,20 @@ const LifeWeeksGrid: React.FC<LifeWeeksGridProps> = ({ dob, targetAge = MAX_YEAR
         </div>
         
         {/* Bottom labels */}
-        <div className="mt-6 flex justify-between w-full max-w-3xl text-sm text-muted-foreground px-2">
-          <div className="flex flex-col items-start">
-            <div className="font-semibold">Birth</div>
-            <div className="text-xs">{dob.toLocaleDateString()}</div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="font-semibold">Each row = 1 year</div>
-            <div className="text-xs">52 weeks per year</div>
-          </div>
-          <div className="flex flex-col items-end">
-            <div className="font-semibold">{targetAge} years</div>
-            <div className="text-xs">{totalWeeks.toLocaleString()} weeks total</div>
+        <div className="mt-4 sm:mt-6 text-center w-full max-w-3xl text-xs sm:text-sm text-muted-foreground px-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+            <div className="flex flex-col items-start sm:items-center">
+              <div className="font-semibold">Birth</div>
+              <div className="text-[10px] sm:text-xs">{dob.toLocaleDateString()}</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="font-semibold">Each row = 1 year</div>
+              <div className="text-[10px] sm:text-xs">{cellSize > 10 ? '52 weeks per year' : '52w/year'}</div>
+            </div>
+            <div className="flex flex-col items-end sm:items-center col-span-2 sm:col-span-1 mt-1 sm:mt-0">
+              <div className="font-semibold">{targetAge} years</div>
+              <div className="text-[10px] sm:text-xs">{totalWeeks.toLocaleString()} weeks total</div>
+            </div>
           </div>
         </div>
       </div>
