@@ -13,7 +13,7 @@ A simple and beautiful tool to visualize your life in weeks.
 - **Accessibility**: The website is fully accessible, with support for keyboard navigation and screen readers.
 - **YouTube demo**: Watch a demo of the app in action on YouTube.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/V6t6zq0U3mY" title="Chrono Life - A simple and beautiful tool to visualize your life in weeks" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/xNeUIp1OIQk?si=KUx9wQjUOB_bFrYy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Tech stack
 
