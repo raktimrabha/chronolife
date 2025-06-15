@@ -12,8 +12,9 @@ A simple and beautiful tool to visualize your life in weeks.
 - **Dark mode**: Switch to dark mode for a more comfortable viewing experience.
 - **Accessibility**: The website is fully accessible, with support for keyboard navigation and screen readers.
 - **YouTube demo**: Watch a demo of the app in action on YouTube.
+### Watch on YouTube
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/xNeUIp1OIQk?si=KUx9wQjUOB_bFrYy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[Watch on YouTube](https://www.youtube.com/embed/xNeUIp1OIQk?si=KUx9wQjUOB_bFrYy)
 
 ## Tech stack
 
