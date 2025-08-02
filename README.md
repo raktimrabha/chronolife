@@ -14,7 +14,7 @@ A simple and beautiful tool to visualize your life in weeks.
 - **YouTube demo**: Watch a demo of the app in action on YouTube.
 ### Watch on YouTube
 
-[Watch on YouTube](https://www.youtube.com/embed/xNeUIp1OIQk?si=KUx9wQjUOB_bFrYy)
+[![Watch the video](https://img.youtube.com/vi/xNeUIp1OIQk/maxresdefault.jpg)](https://www.youtube.com/watch?v=xNeUIp1OIQk)
 
 ## Tech stack
 
